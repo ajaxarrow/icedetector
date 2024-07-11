@@ -87,14 +87,14 @@ class _DetectorScreenState extends State<DetectorScreen> {
         ),
         const SizedBox(height: 15),
         const Expanded(child: SummarySnippet()),
-        GetBuilder<ScanController>(
-          builder: (controller) {
-            return Text(
-              controller.result.value,
-              style: const TextStyle(fontSize: 20),
-            );
-          },
-        ),
+        // GetBuilder<ScanController>(
+        //   builder: (controller) {
+        //     return Text(
+        //       controller.result.value,
+        //       style: const TextStyle(fontSize: 20),
+        //     );
+        //   },
+        // ),
       ],
       );
   }

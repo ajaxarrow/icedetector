@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:icedetector/models/timestamp_record.dart';
 import 'package:icedetector/utils/download.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DownloadScheduleDialog extends StatefulWidget {
   const DownloadScheduleDialog({
@@ -32,7 +33,7 @@ class _DownloadScheduleDialogState extends State<DownloadScheduleDialog> {
     ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           duration: Duration(seconds: 2),
-          content: Text("Excel Saved in Downloads!"),
+          content: Text("File Saved!"),
         )
     );
   }
@@ -42,7 +43,7 @@ class _DownloadScheduleDialogState extends State<DownloadScheduleDialog> {
     return Padding(
       padding: const EdgeInsets.all(20),
         child: SizedBox(
-          height: 150,
+          height: 190,
           width: 150,
           child: isLoading ? const Center(child: CircularProgressIndicator()) : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -66,7 +67,7 @@ class _DownloadScheduleDialogState extends State<DownloadScheduleDialog> {
               ),
               const SizedBox(height: 10),
               const Text('Are you sure you want to save the logs as an excel file?'),
-              const SizedBox(height: 10),
+              const SizedBox(height: 25),
               Row(
                 children: [
                   Expanded(

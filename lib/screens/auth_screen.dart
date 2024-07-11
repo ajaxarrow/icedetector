@@ -70,7 +70,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           'IceCount AI',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 50,
+                              fontSize: 36,
                               fontWeight: FontWeight.w900,
                               color: Theme.of(context).colorScheme.primary
                           ),

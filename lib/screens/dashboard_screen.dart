@@ -116,7 +116,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               const Spacer(),
                               Image.asset(
                                 'lib/assets/images/data-placeholder.png',
-                                height: 100,
+                                height: 80,
                               )
                             ],
                           )
