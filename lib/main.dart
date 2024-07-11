@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:icedetector/screens/auth_screen.dart';
 import 'package:icedetector/screens/detector_screen.dart';
 import 'package:icedetector/screens/landing_screen.dart';
+import 'package:icedetector/screens/main_screen.dart';
+import 'package:icedetector/screens/redirect_screen.dart';
 import 'package:icedetector/screens/reports_screen.dart';
 import 'package:icedetector/themes/theme.dart';
 import 'package:icedetector/firebase_options.dart';
@@ -22,10 +25,13 @@ class App extends StatelessWidget {
     return MaterialApp(
       theme: appTheme,
       debugShowCheckedModeBanner: false,
-      initialRoute: '/landing',
+      initialRoute: '/redirect',
       routes: {
+        '/auth': (context) => const AuthScreen(),
+        '/redirect': (context) => const RedirectScreen(),
         '/landing': (context) => const LandingScreen(),
-        '/main': (context) => const DetectorScreen(),
+        '/main:': (context) => const MainScreen(),
+        '/live:': (context) => const DetectorScreen(),
         '/reports': (context) => const ReportsScreen(),
       },
     );

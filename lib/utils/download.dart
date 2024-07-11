@@ -1,0 +1,1 @@
+export 'package:icedetector/utils/download_web.dart' if (dart.library.io) 'package:icedetector/utils/download_windows.dart';

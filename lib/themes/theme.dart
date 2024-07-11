@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:icedetector/themes/colors.dart';
 
-final ColorScheme kColorScheme = ColorScheme.fromSeed(seedColor: const Color(
-    0xfff05321));
+final ColorScheme kColorScheme = ColorScheme.fromSeed(seedColor: primaryColor);
 
 var appTheme = ThemeData(
   useMaterial3: false,
@@ -10,9 +10,9 @@ var appTheme = ThemeData(
   textTheme: const TextTheme(
     bodyLarge: TextStyle(fontFamily: 'Satoshi'),
     bodyMedium: TextStyle(fontFamily: 'Satoshi'),
-    titleMedium: TextStyle(fontFamily: 'Satoshi', fontWeight: FontWeight.w600),
-    titleLarge:  TextStyle(fontFamily: 'Satoshi', fontWeight: FontWeight.w600),
-    titleSmall: TextStyle(fontFamily: 'Satoshi', fontWeight: FontWeight.w600),
+    titleMedium: TextStyle(fontFamily: 'Satoshi', fontWeight: FontWeight.w400),
+    titleLarge:  TextStyle(fontFamily: 'Satoshi', fontWeight: FontWeight.w400),
+    titleSmall: TextStyle(fontFamily: 'Satoshi', fontWeight: FontWeight.w400),
     displayLarge: TextStyle(fontFamily: 'Satoshi'),
     displayMedium: TextStyle(fontFamily: 'Satoshi'),
     displaySmall: TextStyle(fontFamily: 'Satoshi'),

@@ -47,6 +47,7 @@ class DefaultFirebaseOptions {
     projectId: 'icedetector-1fc0b',
     authDomain: 'icedetector-1fc0b.firebaseapp.com',
     storageBucket: 'icedetector-1fc0b.appspot.com',
+    databaseURL: 'https://icedetector-1fc0b-default-rtdb.asia-southeast1.firebasedatabase.app/'
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -55,6 +56,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '87830154145',
     projectId: 'icedetector-1fc0b',
     storageBucket: 'icedetector-1fc0b.appspot.com',
+    databaseURL: 'https://icedetector-1fc0b-default-rtdb.asia-southeast1.firebasedatabase.app/'
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -64,6 +66,7 @@ class DefaultFirebaseOptions {
     projectId: 'icedetector-1fc0b',
     storageBucket: 'icedetector-1fc0b.appspot.com',
     iosBundleId: 'com.icedetector.icedetector',
+    databaseURL: 'https://icedetector-1fc0b-default-rtdb.asia-southeast1.firebasedatabase.app/'
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,6 +76,7 @@ class DefaultFirebaseOptions {
     projectId: 'icedetector-1fc0b',
     storageBucket: 'icedetector-1fc0b.appspot.com',
     iosBundleId: 'com.icedetector.icedetector',
+    databaseURL: 'https://icedetector-1fc0b-default-rtdb.asia-southeast1.firebasedatabase.app/'
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -82,5 +86,6 @@ class DefaultFirebaseOptions {
     projectId: 'icedetector-1fc0b',
     authDomain: 'icedetector-1fc0b.firebaseapp.com',
     storageBucket: 'icedetector-1fc0b.appspot.com',
+    databaseURL: 'https://icedetector-1fc0b-default-rtdb.asia-southeast1.firebasedatabase.app/'
   );
 }
