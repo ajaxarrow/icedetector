@@ -4,8 +4,7 @@ import 'package:flutter_tflite/flutter_tflite.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class ScanController extends GetxController{
-
+class ScanController extends GetxController {
   @override
   void onInit() {
     // TODO: implement onInit
@@ -25,25 +24,21 @@ class ScanController extends GetxController{
   late List<CameraDescription> cameras;
   var isCameraInitialized = false.obs;
   var cameraCount = 0;
-  var result= ''.obs;
+  var result = ''.obs;
 
   initCamera() async {
-    if(await Permission.camera.request().isGranted){
+    if (await Permission.camera.request().isGranted) {
       cameras = await availableCameras();
-      cameraController = CameraController(
-        cameras[0],
-        ResolutionPreset.max
-      );
-      await cameraController.initialize().then((value){
-        cameraController.startImageStream((image){
+      cameraController = CameraController(cameras[0], ResolutionPreset.max);
+      await cameraController.initialize().then((value) {
+        cameraController.startImageStream((image) {
           cameraCount++;
-          if(cameraCount %10 == 0){
+          if (cameraCount % 10 == 0) {
             cameraCount = 0;
             imageClassifier(image);
           }
           update();
         });
-
       });
       isCameraInitialized(true);
       update();
@@ -54,32 +49,31 @@ class ScanController extends GetxController{
 
   Future<void> initTFLite() async {
     await Tflite.loadModel(
-        model: "lib/assets/icecount.tflite",
-        labels: "lib/assets/labels.txt",
+        model:
+            "lib/assets/image_recognition_models/ice_counter_1/model_unquant.tflite",
+        labels: "lib/assets/image_recognition_models/ice_counter_1/labels.txt",
         isAsset: true,
         numThreads: 1,
-        useGpuDelegate: false
-    );
+        useGpuDelegate: false);
   }
 
-  imageClassifier(CameraImage image) async{
-    var classifier = await Tflite.runModelOnFrame(bytesList: image.planes.map((e){
-      return e.bytes;
-    }).toList(),
-      asynch: true,
-      imageHeight: image.height,
-      imageWidth: image.width,
-      imageMean: 127.5,
-      imageStd: 127.5,
-      numResults: 2,
-      rotation: 90,
-      threshold: 0.4
-    );
+  imageClassifier(CameraImage image) async {
+    var classifier = await Tflite.runModelOnFrame(
+        bytesList: image.planes.map((e) {
+          return e.bytes;
+        }).toList(),
+        asynch: true,
+        imageHeight: image.height,
+        imageWidth: image.width,
+        imageMean: 127.5,
+        imageStd: 127.5,
+        numResults: 2,
+        rotation: 90,
+        threshold: 0.4);
 
-    if(classifier != null){
+    if (classifier != null) {
       print(classifier);
       result.value = classifier[0]['label'];
     }
   }
-
 }
