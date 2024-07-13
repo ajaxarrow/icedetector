@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 const Color primaryColor = Color(0xff035388);
+const Color successColor = Color(0xff0c8803);
+const Color warningColor = Color(0xff883a03);
 const Color secondaryColor = Color(0xffa7d8f0);
 const Color bgColor = Color(0xffebf8ff);
 const Color outlineColor = Color(0xffE4E4E4);

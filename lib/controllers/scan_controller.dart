@@ -15,9 +15,18 @@ class ScanController extends GetxController {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     cameraController.dispose();
+  }
+
+  @override
+  void onClose() {
+    // Dispose of the camera controller properly
+    if (cameraController.value.isInitialized) {
+      cameraController.stopImageStream();
+      cameraController.dispose();
+    }
+    super.onClose();
   }
 
   late CameraController cameraController;

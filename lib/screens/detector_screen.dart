@@ -63,40 +63,61 @@ class _DetectorScreenState extends State<DetectorScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 0,
-            horizontal: 16,
-          ),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(15), // Adjust the radius as needed
-              ),
-            ),
-            onPressed: detectIce,
-            child: const Text('Detect Ice'),
-          ),
-        ),
-        const SizedBox(height: 15),
-        const Expanded(child: SummarySnippet()),
         GetBuilder<ScanController>(
           builder: (controller) {
-            if (controller.result.value == "ice" && hasDetectedIce == false) {
+            final result = controller.result.value;
+            if (result == "ice" && hasDetectedIce == false) {
               detectIce();
               hasDetectedIce = true;
-            } else if (controller.result.value == "no ice" &&
+            } else if (result == "no ice" &&
                 hasDetectedIce == true) {
               hasDetectedIce = false;
             }
-            return Text(
-              controller.result.value,
-              style: const TextStyle(fontSize: 20),
+            return Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 0,
+                horizontal: 16,
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: result == "ice" ? successColor : warningColor,
+                ),
+                child: Center(
+                  child: Text(
+                    result == "ice" ? 'Ice Detected' : 'No Ice Detected',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500
+                    ),
+                  ),
+                ),
+              ),
             );
           },
         ),
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(
+        //     vertical: 0,
+        //     horizontal: 16,
+        //   ),
+        //   child: ElevatedButton(
+        //     style: ElevatedButton.styleFrom(
+        //       padding: const EdgeInsets.symmetric(vertical: 20),
+        //       shape: RoundedRectangleBorder(
+        //         borderRadius:
+        //             BorderRadius.circular(15), // Adjust the radius as needed
+        //       ),
+        //     ),
+        //     onPressed: detectIce,
+        //     child: const Text('Detect Ice'),
+        //   ),
+        // ),
+        const SizedBox(height: 15),
+        const Expanded(child: SummarySnippet()),
+
       ],
     );
   }
