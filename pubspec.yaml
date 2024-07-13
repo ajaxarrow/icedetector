@@ -74,8 +74,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - lib/assets/icecount.tflite
-    - lib/assets/labels.txt
+    - lib/assets/image_recognition_models/icecount.tflite
+    - lib/assets/image_recognition_models/labels.txt
+    - lib/assets/image_recognition_models/ice_counter_1/model_unquant.tflite
+    - lib/assets/image_recognition_models/ice_counter_1/labels.txt
     - lib/assets/images/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
