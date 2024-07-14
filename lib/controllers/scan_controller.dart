@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter_tflite/flutter_tflite.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:image/image.dart' as img;
 
 class ScanController extends GetxController {
   @override
@@ -34,6 +36,7 @@ class ScanController extends GetxController {
   var isCameraInitialized = false.obs;
   var cameraCount = 0;
   var result = ''.obs;
+  var iceImage = Rxn<Uint8List>();
 
   initCamera() async {
     if (await Permission.camera.request().isGranted) {
@@ -81,8 +84,28 @@ class ScanController extends GetxController {
         threshold: 0.4);
 
     if (classifier != null) {
-      print(classifier);
       result.value = classifier[0]['label'];
+      if (result.value == 'ice') {
+        iceImage.value = convertYUV420ToUint8List(image);
+      }
     }
+  }
+
+
+  Uint8List convertYUV420ToUint8List(CameraImage image) {
+    final int width = image.width;
+    final int height = image.height;
+
+    final img.Image imgImage = img.Image(width, height);
+
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        final int pixelIndex = y * width + x;
+        final int pixelValue = image.planes[0].bytes[pixelIndex];
+        imgImage.setPixel(x, y, img.getColor(pixelValue, pixelValue, pixelValue));
+      }
+    }
+
+    return Uint8List.fromList(img.encodeJpg(imgImage));
   }
 }

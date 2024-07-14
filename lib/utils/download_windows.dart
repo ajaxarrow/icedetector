@@ -2,17 +2,19 @@ import 'package:icedetector/models/timestamp_record.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
 import 'dart:io' as io;
 import 'generate_file.dart';
 
 
 
 saveExcel(List<TimestampRecord> logs, String title) async {
+  var uuid = const Uuid();
   var savedFile = await generateExcel(logs, title);
   final directory = await getDownloadsDirectory();
   final filePath = p.join(
     directory!.path!,
-    '$title.xlsx'
+    '$title - ${uuid.v4()}.xlsx'
   );
   final file = io.File(filePath);
   await file.writeAsBytes(savedFile, flush: true);

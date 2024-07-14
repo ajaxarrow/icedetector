@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:icedetector/models/timestamp_record.dart';
 import 'package:icedetector/utils/download.dart';
-import 'package:path_provider/path_provider.dart';
 
 class DownloadScheduleDialog extends StatefulWidget {
   const DownloadScheduleDialog({

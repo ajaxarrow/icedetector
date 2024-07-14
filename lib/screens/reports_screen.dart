@@ -1,4 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:icedetector/models/timestamp_record.dart';
 import 'package:icedetector/utils/format_date.dart';
@@ -29,6 +30,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
           )
     );
   }
+
+  Future<String> getImageUrl(DateTime timestamp) async {
+    final url = await FirebaseStorage.instance
+        .ref('images/${formatDate(timestamp)} Ice Logs Image.jpg')
+        .getDownloadURL();
+    return url;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -110,14 +119,53 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             ),
                             ExpansionTile(
                               title: const Text('Expand Ice Count Logs'),
-                              children: records.map((record) => ListTile(
-                                title: Text(
-                                  'Timestamp: ${formatDate(record.timeStart!)}',
-                                  style: const TextStyle(
-                                    fontSize: 14
-                                  )
-                                ),
-                              )).toList(),
+                              children: records.map((record) {
+                                return FutureBuilder<String>(
+                                  future: getImageUrl(record.timeStart!),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                      return ListTile(
+                                        leading: const CircularProgressIndicator(),
+                                        title: Text(
+                                          'Timestamp: ${formatDate(record.timeStart!)}',
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return ListTile(
+                                        leading: Icon(Icons.error),
+                                        title: Text(
+                                          'Timestamp: ${formatDate(record.timeStart!)}',
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        subtitle: const Text('Error loading image'),
+                                      );
+                                    } else {
+                                      return ListTile(
+                                        leading: Image.network(
+                                          snapshot.data!,
+                                          width: 50,
+                                          height: 50,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                                          loadingBuilder: (context, child, loadingProgress) {
+                                            if (loadingProgress == null) return child;
+                                            return CircularProgressIndicator(
+                                                value: loadingProgress.expectedTotalBytes != null
+                                                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                    : null,
+                                            );
+                                          }
+                                        ),
+                                        title: Text(
+                                          'Timestamp: ${formatDate(record.timeStart!)}',
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                );
+                              }).toList(),
                             )
                           ],
                         ),
@@ -141,7 +189,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         }
         else {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator()
           );
         }
       },

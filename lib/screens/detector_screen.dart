@@ -1,10 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:camera/camera.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:icedetector/controllers/scan_controller.dart';
 import 'package:icedetector/themes/colors.dart';
+import 'package:icedetector/utils/format_date.dart';
 import 'package:icedetector/widgets/summary_snippet.dart';
 
 class DetectorScreen extends StatefulWidget {
@@ -18,10 +22,12 @@ class _DetectorScreenState extends State<DetectorScreen> {
   final _firebaseLogsRef = FirebaseDatabase.instance.ref('logs');
   bool hasDetectedIce = false;
 
-  detectIce() async {
+  detectIce(Uint8List image) async {
+    final timeStart = DateTime.now().millisecondsSinceEpoch;
+    await uploadImage(image, formatDate(DateTime.fromMicrosecondsSinceEpoch(timeStart  * 1000)));
     _firebaseLogsRef.push().set({
-      "timestamp_start": DateTime.now().millisecondsSinceEpoch,
-      "timestamp_end": DateTime.now().millisecondsSinceEpoch
+      "timestamp_start": timeStart,
+      "timestamp_end": DateTime.now().millisecondsSinceEpoch,
     });
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -29,6 +35,23 @@ class _DetectorScreenState extends State<DetectorScreen> {
       content: Text("Ice Detected!"),
     ));
   }
+
+  Future<void> uploadImage(Uint8List image, String imageName) async {
+    if (image != null) {
+      try {
+        final String fileName = 'images/${imageName} Ice Logs Image.jpg';
+        final UploadTask uploadTask = FirebaseStorage.instance.ref(fileName).putData(image);
+        final TaskSnapshot snapshot = await uploadTask;
+        final String downloadUrl = await snapshot.ref.getDownloadURL();
+        print('Download URL: $downloadUrl');
+      } catch (e) {
+        print('Error uploading image: $e');
+      }
+    } else {
+      print('No image selected');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -66,8 +89,9 @@ class _DetectorScreenState extends State<DetectorScreen> {
         GetBuilder<ScanController>(
           builder: (controller) {
             final result = controller.result.value;
+            final image = controller.iceImage.value;
             if (result == "ice" && hasDetectedIce == false) {
-              detectIce();
+              detectIce(image!);
               hasDetectedIce = true;
             } else if (result == "no ice" &&
                 hasDetectedIce == true) {
