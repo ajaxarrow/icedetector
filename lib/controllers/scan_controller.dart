@@ -105,7 +105,10 @@ class ScanController extends GetxController {
         imgImage.setPixel(x, y, img.getColor(pixelValue, pixelValue, pixelValue));
       }
     }
+    final img.Image resizedImage = img.copyResize(imgImage, width: 400);
 
-    return Uint8List.fromList(img.encodeJpg(imgImage));
+    // return Uint8List.fromList(img.encodeJpg(imgImage));
+    return Uint8List.fromList(img.encodeJpg(resizedImage));
+
   }
 }

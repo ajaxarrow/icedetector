@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 
 import 'package:icedetector/controllers/scan_controller.dart';
 import 'package:icedetector/themes/colors.dart';
-import 'package:icedetector/utils/format_date.dart';
 import 'package:icedetector/widgets/summary_snippet.dart';
 
 class DetectorScreen extends StatefulWidget {
@@ -24,7 +23,7 @@ class _DetectorScreenState extends State<DetectorScreen> {
 
   detectIce(Uint8List image) async {
     final timeStart = DateTime.now().millisecondsSinceEpoch;
-    await uploadImage(image, formatDate(DateTime.fromMicrosecondsSinceEpoch(timeStart  * 1000)));
+    await uploadImage(image, timeStart.toString());
     _firebaseLogsRef.push().set({
       "timestamp_start": timeStart,
       "timestamp_end": DateTime.now().millisecondsSinceEpoch,
@@ -39,7 +38,7 @@ class _DetectorScreenState extends State<DetectorScreen> {
   Future<void> uploadImage(Uint8List image, String imageName) async {
     if (image != null) {
       try {
-        final String fileName = 'images/${imageName} Ice Logs Image.jpg';
+        final String fileName = 'images/$imageName.jpg';
         final UploadTask uploadTask = FirebaseStorage.instance.ref(fileName).putData(image);
         final TaskSnapshot snapshot = await uploadTask;
         final String downloadUrl = await snapshot.ref.getDownloadURL();

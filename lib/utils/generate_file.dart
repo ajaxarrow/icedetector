@@ -8,71 +8,78 @@ import 'package:http/http.dart' as http;
 import 'format_date.dart';
 
 
-Future<List<int>> generateExcel(List<TimestampRecord> logs, String title) async {
-  var excel = Excel.createExcel();
-  var sheet = excel['Ice Count Logs Summary'];
-
-  sheet.merge(CellIndex.indexByString("A1"), CellIndex.indexByString("F1"));
-  sheet.cell(CellIndex.indexByString("A1")).value = TextCellValue(title);
-
-  List<String> headers = ['Timestamp Logs', 'Images'];
-  for (int i = 0; i < headers.length; i++) {
-    sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 1)).value = TextCellValue(headers[i]);
-  }
-
-  for (int i = 0; i < logs.length; i++) {
-    TimestampRecord log = logs[i];
-    final url = await FirebaseStorage.instance
-        .ref('images/${formatDate(log.timeStart!)} Ice Logs Image.jpg')
-        .getDownloadURL();
-
-    List<String> row = [
-      formatDate(log.timeStart!).toString(),
-      url
-    ];
-
-    for (int j = 0; j < row.length; j++) {
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: j, rowIndex: i + 2)).value = TextCellValue(row[j]);
-    }
-  }
-
-  // Save the Excel file
-  excel.setDefaultSheet(sheet.sheetName);
-  return excel.encode()!;
-}
-
 // Future<List<int>> generateExcel(List<TimestampRecord> logs, String title) async {
-//   final Workbook workbook = Workbook();
-//   final Worksheet sheet = workbook.worksheets[0];
+//   var excel = Excel.createExcel();
+//   var sheet = excel['Ice Count Logs Summary'];
 //
-//   sheet.getRangeByName("A1").setText(title);
+//   sheet.merge(CellIndex.indexByString("A1"), CellIndex.indexByString("F1"));
+//   sheet.cell(CellIndex.indexByString("A1")).value = TextCellValue(title);
 //
 //   List<String> headers = ['Timestamp Logs', 'Images'];
 //   for (int i = 0; i < headers.length; i++) {
-//     sheet.getRangeByIndex(1, i + 1).setText(headers[i]);
+//     sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 1)).value = TextCellValue(headers[i]);
 //   }
+//
 //   for (int i = 0; i < logs.length; i++) {
 //     TimestampRecord log = logs[i];
 //     final url = await FirebaseStorage.instance
-//         .ref('images/${formatDate(log.timeStart!)} Ice Logs Image.jpg')
+//         .ref('images/${log.timeStart!.millisecondsSinceEpoch}.jpg')
 //         .getDownloadURL();
-//
-//     final http.Response response = await http.get(Uri.parse(url));
-//     final Uint8List bytes = response.bodyBytes;
 //
 //     List<String> row = [
 //       formatDate(log.timeStart!).toString(),
 //       url
 //     ];
 //
-//     // for (int j = 0; j < row.length; j++) {
-//     //   sheet.getRangeByIndex(i + 2, j + 1).setText(row[j]);
-//     // }
-//     sheet.getRangeByIndex(i + 2, 1).setText(row[0]);
-//     sheet.pictures.addStream(i + 2, 2, bytes);
+//     for (int j = 0; j < row.length; j++) {
+//       sheet.cell(CellIndex.indexByColumnRow(columnIndex: j, rowIndex: i + 2)).value = TextCellValue(row[j]);
+//     }
 //   }
 //
-//   final bytes = workbook.saveAsStream();
-//   return bytes;
+//   // Save the Excel file
+//   excel.setDefaultSheet(sheet.sheetName);
+//   return excel.encode()!;
 // }
+
+Future<List<int>> generateExcel(List<TimestampRecord> logs, String title) async {
+  final Workbook workbook = Workbook();
+  final Worksheet sheet = workbook.worksheets[0];
+
+  sheet.getRangeByName("A1").setText(title);
+
+  List<String> headers = ['Timestamp Logs', 'Images'];
+  for (int i = 0; i < headers.length; i++) {
+    sheet.getRangeByIndex(1, i + 1).setText(headers[i]);
+  }
+  for (int i = 0; i < logs.length; i++) {
+    TimestampRecord log = logs[i];
+    final url = await FirebaseStorage.instance
+        .ref('images/${log.timeStart!.millisecondsSinceEpoch}.jpg')
+        .getDownloadURL();
+
+    // final http.Response response = await http.get(Uri.parse(url));
+    // final Uint8List bytes = response.bodyBytes;
+
+    List<String> row = [
+      formatDate(log.timeStart!).toString(),
+      url
+    ];
+
+    // for (int j = 0; j < row.length; j++) {
+    //   sheet.getRangeByIndex(i + 2, j + 1).setText(row[j]);
+    // }
+    sheet.getRangeByIndex(i + 2, 1).setText(row[0]);
+    final Hyperlink hyperlink = sheet.hyperlinks.add(
+        sheet.getRangeByIndex(i + 2, 2),
+      HyperlinkType.url,
+      url
+    );
+    hyperlink.screenTip = 'To view the captured ice image in this timestamp, go through this link';
+    hyperlink.textToDisplay = 'Image Link';
+    // sheet.pictures.addStream(i + 2, 2, bytes);
+  }
+
+  final bytes = workbook.saveAsStream();
+  return bytes;
+}
 

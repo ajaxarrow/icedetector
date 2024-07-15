@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:icedetector/models/timestamp_record.dart';
 import 'package:icedetector/utils/format_date.dart';
 import 'package:icedetector/widgets/download_schedule_dialog.dart';
+import 'package:icedetector/widgets/ice_logs_details_dialog.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -33,9 +34,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Future<String> getImageUrl(DateTime timestamp) async {
     final url = await FirebaseStorage.instance
-        .ref('images/${formatDate(timestamp)} Ice Logs Image.jpg')
+        .ref('images/${timestamp.millisecondsSinceEpoch}.jpg')
         .getDownloadURL();
     return url;
+  }
+
+  void openIceLogsDetailsDialog(String date, String url){
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))
+      ),
+      builder: (ctx) => IceLogsDetailsDialog(logDate: date, url: url)
+    );
   }
 
 
@@ -133,7 +145,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                       );
                                     } else if (snapshot.hasError) {
                                       return ListTile(
-                                        leading: Icon(Icons.error),
+                                        leading: const Icon(Icons.error),
                                         title: Text(
                                           'Timestamp: ${formatDate(record.timeStart!)}',
                                           style: const TextStyle(fontSize: 14),
@@ -141,25 +153,28 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                         subtitle: const Text('Error loading image'),
                                       );
                                     } else {
-                                      return ListTile(
-                                        leading: Image.network(
-                                          snapshot.data!,
-                                          width: 50,
-                                          height: 50,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-                                          loadingBuilder: (context, child, loadingProgress) {
-                                            if (loadingProgress == null) return child;
-                                            return CircularProgressIndicator(
-                                                value: loadingProgress.expectedTotalBytes != null
-                                                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                                    : null,
-                                            );
-                                          }
-                                        ),
-                                        title: Text(
-                                          'Timestamp: ${formatDate(record.timeStart!)}',
-                                          style: const TextStyle(fontSize: 14),
+                                      return GestureDetector(
+                                        onTap: () => openIceLogsDetailsDialog(formatDate(record.timeStart!), snapshot.data!),
+                                        child: ListTile(
+                                          leading: Image.network(
+                                            snapshot.data!,
+                                            width: 50,
+                                            height: 50,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                                            loadingBuilder: (context, child, loadingProgress) {
+                                              if (loadingProgress == null) return child;
+                                              return CircularProgressIndicator(
+                                                  value: loadingProgress.expectedTotalBytes != null
+                                                      ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                      : null,
+                                              );
+                                            }
+                                          ),
+                                          title: Text(
+                                            'Timestamp: ${formatDate(record.timeStart!)}',
+                                            style: const TextStyle(fontSize: 14),
+                                          ),
                                         ),
                                       );
                                     }
@@ -185,6 +200,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 const SizedBox(height: 15)
               ],
             ),
+          );
+        }
+        else if (snap.hasError){
+          return Center(
+              child: Text('Error: ${snap.error}')
+          );
+        }
+        else if (!snap.hasData || snap.data?.snapshot.value == null){
+          return const Center(
+              child: Text('No Data Found!')
           );
         }
         else {
