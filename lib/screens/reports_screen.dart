@@ -207,11 +207,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
               child: Text('Error: ${snap.error}')
           );
         }
-        else if (!snap.hasData || snap.data?.snapshot.value == null){
-          return const Center(
-              child: Text('No Data Found!')
-          );
-        }
+        // else if (!snap.hasData || snap.data?.snapshot.value == null){
+        //   return const Center(
+        //       child: Text('No Data Found!')
+        //   );
+        // }
         else {
           return const Center(
             child: CircularProgressIndicator()
