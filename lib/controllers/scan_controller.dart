@@ -21,8 +21,7 @@ class ScanController extends GetxController {
     cameraController.dispose();
   }
 
-  @override
-  void onClose() {
+  void onCameraClose() {
     // Dispose of the camera controller properly
     if (cameraController.value.isInitialized) {
       cameraController.stopImageStream();
@@ -33,6 +32,7 @@ class ScanController extends GetxController {
 
   late CameraController cameraController;
   late List<CameraDescription> cameras;
+  var selectedCamera = 0.obs;
   var isCameraInitialized = false.obs;
   var cameraCount = 0;
   var result = ''.obs;
@@ -41,7 +41,8 @@ class ScanController extends GetxController {
   initCamera() async {
     if (await Permission.camera.request().isGranted) {
       cameras = await availableCameras();
-      cameraController = CameraController(cameras[0], ResolutionPreset.max);
+      print(cameras);
+      cameraController = CameraController(cameras[selectedCamera.value], ResolutionPreset.max);
       await cameraController.initialize().then((value) {
         cameraController.startImageStream((image) {
           cameraCount++;
@@ -57,6 +58,13 @@ class ScanController extends GetxController {
     } else {
       print("Permission Denied");
     }
+  }
+
+  void selectCamera(int index) {
+    selectedCamera.value = index;
+    cameraController.dispose(); // Dispose the current controller
+    cameraController = CameraController(cameras[selectedCamera.value], ResolutionPreset.max);
+    initCamera(); // Reinitialize with the newly selected camera
   }
 
   Future<void> initTFLite() async {
@@ -109,6 +117,6 @@ class ScanController extends GetxController {
 
     // return Uint8List.fromList(img.encodeJpg(imgImage));
     return Uint8List.fromList(img.encodeJpg(resizedImage));
-
   }
+
 }

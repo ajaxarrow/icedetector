@@ -41,6 +41,13 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    final railWidth = width * 0.20;
+    final mainContainerWidth = width * 0.78;
+    final bool isSmallScreen = width < 600;
+    final bool isLargeScreen = width > 1200;
+
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -67,11 +74,43 @@ class _MainScreenState extends State<MainScreen> {
         decoration: const BoxDecoration(
           color: bgColor,
         ),
-        height: double.infinity,
-        width: double.infinity,
-        child: widgets[selectedIndex],
+        height: height,
+        width: width,
+        child: Row(
+          children: [
+            if(!isSmallScreen)
+              SizedBox(
+                height: height,
+                width: railWidth,
+                child: NavigationRail(
+                  extended: isLargeScreen,
+                  selectedIndex: selectedIndex,
+                  onDestinationSelected: (int index) => setState(() {
+                    selectedIndex = index;
+                  }),
+                  destinations: items.map((item) => NavigationRailDestination(
+                      icon: item.icon,
+                      selectedIcon: item.activeIcon,
+                      label: Text(
+                        item.label!,
+                      )))
+                      .toList(),
+                ),
+              ),
+            const VerticalDivider(thickness: 1, width: 1),
+            Container(
+              decoration: const BoxDecoration(
+                color: bgColor,
+              ),
+              height: double.infinity,
+              width: isSmallScreen ? width * 0.99 : mainContainerWidth,
+              child: widgets[selectedIndex],
+            )
+
+          ],
+        ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: isSmallScreen ? BottomNavigationBar(
         items: items,
         showUnselectedLabels: true,
         selectedLabelStyle: const TextStyle(
@@ -84,7 +123,7 @@ class _MainScreenState extends State<MainScreen> {
         onTap: (int index) => setState(() {
           selectedIndex = index;
         }),
-      ),
+      ) : null,
     );
   }
 }

@@ -51,97 +51,246 @@ class _DetectorScreenState extends State<DetectorScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    ScanController().onCameraClose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(15)),
-              border: Border.all(color: primaryColor, width: 2.0),
+    final width = MediaQuery.of(context).size.width;
+    final bool isSmallScreen = width < 600;
+    final bool isLargeScreen = width > 1280;
+
+    if (isLargeScreen) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(15)),
+                      border: Border.all(color: primaryColor, width: 2.0),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(12)),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * .80,
+                        width: MediaQuery.of(context).size.width * .25,
+                        child: GetBuilder<ScanController>(
+                          init: ScanController(),
+                          builder: (controller) {
+                            return controller.isCameraInitialized.value
+                                ? CameraPreview(controller.cameraController)
+                                : const Center(
+                              child: Text('Loading Preview...'),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(12)),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * .40,
-                width: MediaQuery.of(context).size.width * .50,
-                child: GetBuilder<ScanController>(
-                  init: ScanController(),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: GetBuilder<ScanController>(
+                    builder: (controller) {
+                      if(controller.isCameraInitialized.value){
+                        final cameras = controller.cameras;
+                        return Row(
+                          children: [
+                            const Text('Selected Camera: '),
+                            DropdownButton<int>(
+                              value: controller.selectedCamera.value,
+                              items: cameras
+                                  .asMap()
+                                  .entries
+                                  .map<DropdownMenuItem<int>>(
+                                    (entry) => DropdownMenuItem<int>(
+                                  value: entry.key,
+                                  child: Text('Camera ${entry.key + 1}'),
+                                ),
+                              )
+                                  .toList(),
+                              onChanged: (index) {
+                                controller.selectCamera(index!);
+                              },
+                            )
+                          ],
+                        );
+                      } else {
+                        return const Text('Loading camera...');
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                GetBuilder<ScanController>(
                   builder: (controller) {
-                    return controller.isCameraInitialized.value
-                        ? CameraPreview(controller.cameraController)
-                        : const Center(
-                            child: Text('Loading Preview...'),
-                          );
+                    final result = controller.result.value;
+                    final image = controller.iceImage.value;
+                    if (result == "ice" && hasDetectedIce == false) {
+                      detectIce(image!);
+                      hasDetectedIce = true;
+                    } else if (result == "no ice" && hasDetectedIce == true) {
+                      hasDetectedIce = false;
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 0,
+                        horizontal: 16,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: result == "ice" ? successColor : warningColor,
+                        ),
+                        child: Center(
+                          child: Text(
+                            result == "ice" ? 'Ice Detected' : 'No Ice Detected',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
                   },
+                ),
+                const SizedBox(height: 15),
+                const Expanded(child: SummarySnippet()),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else {
+      // For smaller screens, use a single-column layout
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(15)),
+                border: Border.all(color: primaryColor, width: 2.0),
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(12)),
+                child: SizedBox(
+                  height: isSmallScreen ? MediaQuery.of(context).size.height * .40 : MediaQuery.of(context).size.height * .60,
+                  width: MediaQuery.of(context).size.width * .50,
+                  child: GetBuilder<ScanController>(
+                    init: ScanController(),
+                    builder: (controller) {
+                      return controller.isCameraInitialized.value
+                          ? CameraPreview(controller.cameraController)
+                          : const Center(
+                        child: Text('Loading Preview...'),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 20),
-        GetBuilder<ScanController>(
-          builder: (controller) {
-            final result = controller.result.value;
-            final image = controller.iceImage.value;
-            if (result == "ice" && hasDetectedIce == false) {
-              detectIce(image!);
-              hasDetectedIce = true;
-            } else if (result == "no ice" &&
-                hasDetectedIce == true) {
-              hasDetectedIce = false;
-            }
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 0,
-                horizontal: 16,
-              ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: result == "ice" ? successColor : warningColor,
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: GetBuilder<ScanController>(
+              builder: (controller) {
+                if(controller.isCameraInitialized.value){
+                  final cameras = controller.cameras;
+                  return Row(
+                    children: [
+                      const Text('Selected Camera: '),
+                      DropdownButton<int>(
+                        value: controller.selectedCamera.value,
+                        items: cameras
+                            .asMap()
+                            .entries
+                            .map<DropdownMenuItem<int>>(
+                              (entry) => DropdownMenuItem<int>(
+                            value: entry.key,
+                            child: Text('Camera ${entry.key + 1}'),
+                          ),
+                        )
+                            .toList(),
+                        onChanged: (index) {
+                          controller.selectCamera(index!);
+                        },
+                      )
+                    ],
+                  );
+                } else {
+                  return const Text('Loading camera...');
+                }
+              },
+            ),
+          ),
+          const SizedBox(height: 10),
+          GetBuilder<ScanController>(
+            builder: (controller) {
+              final result = controller.result.value;
+              final image = controller.iceImage.value;
+              if (result == "ice" && hasDetectedIce == false) {
+                detectIce(image!);
+                hasDetectedIce = true;
+              } else if (result == "no ice" && hasDetectedIce == true) {
+                hasDetectedIce = false;
+              }
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 16,
                 ),
-                child: Center(
-                  child: Text(
-                    result == "ice" ? 'Ice Detected' : 'No Ice Detected',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: result == "ice" ? successColor : warningColor,
+                  ),
+                  child: Center(
+                    child: Text(
+                      result == "ice" ? 'Ice Detected' : 'No Ice Detected',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
-        ),
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(
-        //     vertical: 0,
-        //     horizontal: 16,
-        //   ),
-        //   child: ElevatedButton(
-        //     style: ElevatedButton.styleFrom(
-        //       padding: const EdgeInsets.symmetric(vertical: 20),
-        //       shape: RoundedRectangleBorder(
-        //         borderRadius:
-        //             BorderRadius.circular(15), // Adjust the radius as needed
-        //       ),
-        //     ),
-        //     onPressed: detectIce,
-        //     child: const Text('Detect Ice'),
-        //   ),
-        // ),
-        const SizedBox(height: 15),
-        const Expanded(child: SummarySnippet()),
-
-      ],
-    );
+              );
+            },
+          ),
+          const SizedBox(height: 15),
+          const Expanded(child: SummarySnippet()),
+        ],
+      );
+    }
   }
 }

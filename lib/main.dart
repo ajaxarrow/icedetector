@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:icedetector/screens/auth_screen.dart';
 import 'package:icedetector/screens/detector_screen.dart';
@@ -9,12 +10,21 @@ import 'package:icedetector/themes/theme.dart';
 import 'package:icedetector/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+Future<void> initializeFirebase() async {
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } else {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    name: 'ice-count',
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await initializeFirebase();
   runApp(const App());
 }
 
