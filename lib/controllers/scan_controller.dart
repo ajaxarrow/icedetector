@@ -17,6 +17,8 @@ class ScanController extends GetxController {
 
   @override
   void dispose() {
+    cameraController.stopImageStream(); // Ensure image stream is stopped
+    cameraController.dispose();
     super.dispose();
     cameraController.dispose();
   }
@@ -42,7 +44,8 @@ class ScanController extends GetxController {
     if (await Permission.camera.request().isGranted) {
       cameras = await availableCameras();
       print(cameras);
-      cameraController = CameraController(cameras[selectedCamera.value], ResolutionPreset.max);
+      cameraController =
+          CameraController(cameras[selectedCamera.value], ResolutionPreset.max);
       await cameraController.initialize().then((value) {
         cameraController.startImageStream((image) {
           cameraCount++;
@@ -63,7 +66,8 @@ class ScanController extends GetxController {
   void selectCamera(int index) {
     selectedCamera.value = index;
     cameraController.dispose(); // Dispose the current controller
-    cameraController = CameraController(cameras[selectedCamera.value], ResolutionPreset.max);
+    cameraController =
+        CameraController(cameras[selectedCamera.value], ResolutionPreset.max);
     initCamera(); // Reinitialize with the newly selected camera
   }
 
@@ -99,7 +103,6 @@ class ScanController extends GetxController {
     }
   }
 
-
   Uint8List convertYUV420ToUint8List(CameraImage image) {
     final int width = image.width;
     final int height = image.height;
@@ -110,7 +113,8 @@ class ScanController extends GetxController {
       for (int x = 0; x < width; x++) {
         final int pixelIndex = y * width + x;
         final int pixelValue = image.planes[0].bytes[pixelIndex];
-        imgImage.setPixel(x, y, img.getColor(pixelValue, pixelValue, pixelValue));
+        imgImage.setPixel(
+            x, y, img.getColor(pixelValue, pixelValue, pixelValue));
       }
     }
     final img.Image resizedImage = img.copyResize(imgImage, width: 400);
@@ -118,5 +122,4 @@ class ScanController extends GetxController {
     // return Uint8List.fromList(img.encodeJpg(imgImage));
     return Uint8List.fromList(img.encodeJpg(resizedImage));
   }
-
 }
